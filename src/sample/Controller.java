@@ -14,14 +14,13 @@ public class Controller {
 
     @FXML
     private Text output;
-    private long sum1 = 0;
-    private long sum2 = 0;
+    private long screennum = 0;
 
     private boolean start = true;
 
     private String operator = "";
     private String memoryoperator = "";
-    Jdbc jdbc = new Jdbc();
+    private Jdbc jdbc = new Jdbc();
     private Model model = new Model();
 
     @FXML
@@ -45,12 +44,12 @@ public class Controller {
             if (!operator.isEmpty()) return;
 
             operator = value;
-            sum1 = Long.parseLong(output.getText());
+            screennum = Long.parseLong(output.getText());
             output.setText("");
 
         } else {
             if (operator.isEmpty()) return;
-            output.setText(String.valueOf(model.calculation(sum1, Long.parseLong(output.getText()), operator)));
+            output.setText(String.valueOf(model.calculation(screennum, Long.parseLong(output.getText()), operator)));
             operator = "";
             start = true;
         }
@@ -59,48 +58,51 @@ public class Controller {
     @FXML
     private void processmemory(ActionEvent event) {
 
+        Long screennum;
+        Long resultsql;
         Long sum;
-        Long result;
         String value = ((Button) event.getSource()).getText();
 
         memoryoperator = value;
-        sum1 = Long.parseLong(output.getText());
+        screennum = Long.parseLong(output.getText());
 
         switch (memoryoperator) {
             case "MC":
                 jdbc.delete();
                 memoryoperator = "";
                 start = true;
+                break;
             case "MR":
                 output.setText("");
-                result = jdbc.select();
-                if (result.equals(null))
+                resultsql = jdbc.select();
+                if (resultsql.equals(null))
                     output.setText("");
                 else {
                     output.setText(String.valueOf(jdbc.select()));
                 }
                 memoryoperator = "";
                 start = true;
+                break;
             case "M+":
-                result = jdbc.select();
-                if (result.equals(null)) return;
+                resultsql = jdbc.select();
+                if (resultsql.equals(null)) return;
                 else {
-                    sum = result + sum1;
+                    sum = resultsql + screennum;
                     jdbc.update(sum);
                 }
-
                 memoryoperator = "";
                 start = true;
+                break;
             case "M-":
-                result = jdbc.select();
-                if (result.equals(null)) return;
+                resultsql = jdbc.select();
+                if (resultsql.equals(null)) return;
                 else {
-                    sum = result - sum1;
+                    sum = resultsql - screennum;
                     jdbc.update(sum);
                 }
                 memoryoperator = "";
                 start = true;
+                break;
         }
-
     }
 }

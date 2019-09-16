@@ -1,11 +1,9 @@
 package sample;
 
 import java.sql.*;
-import java.util.Objects;
 
 public class Jdbc {
 
-    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     static final String URL = "jdbc:mysql://localhost:3306/calcjdbc";
     static final String USER = "root";
     static final String PASSWORD = "root";
@@ -17,7 +15,7 @@ public class Jdbc {
 
 
     public Jdbc() {
-        Connection connection = this.connection;
+
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             System.out.println("Загрузка драйвера...");
@@ -34,79 +32,61 @@ public class Jdbc {
         }
     }
 
-    public Connection getConnection() {
-        return connection;
-    }
-
     public Long select() {
 
         String selectsql = "select value from memoryvalue where id = 1";
         try {
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
             preparedStatement = connection.prepareStatement(selectsql);
-            System.out.println("Создание запроса select");
-        } catch (SQLException e) {
-            System.out.println("Ошибка в создании запроса select");
-        }
-        try {
             resultSet = preparedStatement.executeQuery();
 
-        } catch (SQLException e) {
-            System.out.println("Не удалось сделать запрос");
-        }
-        try {
             while (resultSet.next()) {
                 result = resultSet.getLong("value");
-                System.out.println("Установка значения");
             }
+            connection.close();
+            preparedStatement.close();
+            System.out.println("Запрос select успешно выполнен");
         } catch (SQLException e) {
-            System.out.println("Ошибка в установке значения");
-        }
-        if (result == null) {
+            System.out.println("Ошибка в создании запроса select");
+
+
+        }if (result == null) {
             return Long.valueOf(0);
         } else
             return result;
+        }
 
-    }
 
     public void update(Long sum) {
         String updatesql = "UPDATE memoryvalue SET value = ? where id = 1";
         try {
+            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
             preparedStatement = connection.prepareStatement(updatesql);
-            System.out.println("Создание запроса update");
-        } catch (SQLException e) {
-            System.out.println("Ошибка в cоздании запроса update");
-        }
-        try {
             preparedStatement.setLong(1, sum);
             preparedStatement.executeUpdate();
-            System.out.println("Запрос update отправлен");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
+            connection.close();
             preparedStatement.close();
-            System.out.println("Соединение update закрыто");
+            System.out.println("Запрос update успешно выполнен");
         } catch (SQLException e) {
-            System.out.println("Не удалось закрыть соединение update");
+            System.out.println("Ошибка в cоздании запроса update");
         }
     }
 
 
     public void delete() {
-        String deletesql = "delete from memoryvalue where id = 1";
+        String deletesql = "update memoryvalue set value = ? ";
 
         try {
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
             preparedStatement = connection.prepareStatement(deletesql);
-            System.out.println("Создание запроса delete");
+            preparedStatement.setLong(1, 0);
+            preparedStatement.executeUpdate();
+            connection.close();
+            preparedStatement.close();
+
+            System.out.println("Запрос delete успешно выполнен");
         } catch (SQLException e) {
             System.out.println("Ошибка в создании запроса delete");
         }
-        try {
-            preparedStatement.close();
-            System.out.println("Соединение delete закрыто");
-        } catch (SQLException e) {
-            System.out.println("Не удалось закрыь соединение delete");
-        }
     }
 }
-
